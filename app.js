@@ -7,7 +7,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: "https://collageboxd.vercel.app/",
+    origin: "*",
   })
 );
 

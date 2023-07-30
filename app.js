@@ -1,6 +1,15 @@
 const express = require("express");
+const cors = require("cors");
+
 const app = express();
+
 app.use(express.json());
+
+app.use(
+  cors({
+    origin: "https://collageboxd.vercel.app/",
+  })
+);
 
 app.get("/", (req, res) => {
   return res.status(200).json({ msg: "servidor rodando" });

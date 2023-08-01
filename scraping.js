@@ -24,16 +24,23 @@ exports.scrapingLetterboxd = async (user, month) => {
   for (element of $(".diary-entry-row")) {
     const movieName = $(element).find(".headline-3").text();
     let pageLink = $(element).find(".headline-3").find("a").attr("href");
-    const movieRating = $(element).find(".rating").text();
+    let movieRating = $(element).find(".rating").attr("class");
     const isLiked = $(element).find(".icon-liked").length;
 
     let result = pageLink.split("/");
     pageLink = result[3];
 
+    movieRating = parseInt(movieRating.slice(13));
+
+    const isHalf = movieRating % 2 !== 0 ? true : false;
+    isHalf ? movieRating-- : "";
+    movieRating /= 2;
+
     objMovie = {
       movieName,
       movieRating,
       isLiked,
+      isHalf,
       pageLink,
     };
 
@@ -43,7 +50,7 @@ exports.scrapingLetterboxd = async (user, month) => {
   for (movie of arrayMovies) {
     const { movieName, movieYear, pageLink } = movie;
 
-    //fetch director
+    //fetch id
     do {
       var axiosResponse2 = await axios.request({
         method: "GET",

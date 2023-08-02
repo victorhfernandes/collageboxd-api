@@ -49,7 +49,7 @@ exports.scrapingLetterboxd = async (user, month) => {
     }
 
     for (movie of arrayMovies) {
-      const { movieName, movieYear, pageLink } = movie;
+      const { pageLink } = movie;
 
       //fetch id
       do {
@@ -82,10 +82,20 @@ exports.scrapingLetterboxd = async (user, month) => {
       delete movie.pageLink;
     }
 
+    if (!arrayMovies.length) {
+      const objError = {
+        error: "No film logs",
+      };
+
+      arrayMovies.push(objError);
+    }
+
     return arrayMovies;
   } catch (e) {
-    return {
-      error: e.message,
-    };
+    return [
+      {
+        error: e.message,
+      },
+    ];
   }
 };

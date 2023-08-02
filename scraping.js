@@ -32,8 +32,9 @@ exports.scrapingLetterboxd = async (user, month) => {
       pageLink = result[3];
 
       movieRating = parseInt(movieRating.slice(13));
+      console.log(movieRating);
 
-      const isHalf = movieRating % 2 !== 0 ? true : false;
+      const isHalf = movieRating % 2 !== 0 && movieRating ? true : false;
       isHalf ? movieRating-- : "";
       movieRating /= 2;
 

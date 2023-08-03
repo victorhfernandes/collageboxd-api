@@ -3,7 +3,7 @@ module.exports = (scraping) => {
 
   const router = require("express").Router();
 
-  router.get("/:user/:month", scrapingController.getLetterboxdData);
+  router.get("/:user&:month&:year", scrapingController.getLetterboxdData);
 
   scraping.use("/api", router);
 };

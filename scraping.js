@@ -5,18 +5,26 @@ require("dotenv").config();
 
 const apiKey = process.env.TMDB_API_KEY;
 
+const axiosFetch = async (url) => {
+  do {
+    var axiosResponse = await axios.request({
+      method: "GET",
+      url: url,
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
+      },
+    });
+  } while (axiosResponse.length === 0);
+
+  return axiosResponse;
+};
+
 exports.scrapingLetterboxd = async (user, month, year) => {
   try {
-    do {
-      var axiosResponse = await axios.request({
-        method: "GET",
-        url: `https://letterboxd.com/${user}/films/diary/for/${year}/${month}/`,
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
-        },
-      });
-    } while (axiosResponse.length === 0);
+    const axiosResponse = await axiosFetch(
+      `https://letterboxd.com/${user}/films/diary/for/${year}/${month}/`
+    );
 
     const $ = cheerio.load(axiosResponse.data);
 
@@ -52,18 +60,11 @@ exports.scrapingLetterboxd = async (user, month, year) => {
       const { pageLink, movieName } = movie;
 
       //fetch id
-      do {
-        var axiosResponse2 = await axios.request({
-          method: "GET",
-          url: `https://letterboxd.com/film/${pageLink}/`,
-          headers: {
-            "User-Agent":
-              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36",
-          },
-        });
-      } while (axiosResponse2.length === 0);
+      const axiosResponse = await axiosFetch(
+        `https://letterboxd.com/film/${pageLink}/`
+      );
 
-      const $ = cheerio.load(axiosResponse2.data);
+      const $ = cheerio.load(axiosResponse.data);
 
       let movieId =
         $(".micro-button:eq(1)").attr("href") ||

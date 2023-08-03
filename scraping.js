@@ -32,7 +32,6 @@ exports.scrapingLetterboxd = async (user, month, year) => {
       pageLink = result[3];
 
       movieRating = parseInt(movieRating.slice(13));
-      console.log(movieRating);
 
       const isHalf = movieRating % 2 !== 0 && movieRating ? true : false;
       isHalf ? movieRating-- : "";
@@ -49,8 +48,8 @@ exports.scrapingLetterboxd = async (user, month, year) => {
       arrayMovies.push(objMovie);
     }
 
-    for (movie of arrayMovies) {
-      const { pageLink } = movie;
+    for (let movie of arrayMovies) {
+      const { pageLink, movieName } = movie;
 
       //fetch id
       do {
@@ -77,7 +76,12 @@ exports.scrapingLetterboxd = async (user, month, year) => {
         `https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}`
       );
       const json = await res.json();
-      const moviePoster = json.poster_path;
+      let moviePoster = json.poster_path;
+
+      //exceptions
+      if (movieName === "Twin Peaks: The Return") {
+        moviePoster = "/lA9CNSdo50iQPZ8A2fyVpMvJZAf.jpg";
+      }
 
       movie.moviePoster = moviePoster;
       delete movie.pageLink;

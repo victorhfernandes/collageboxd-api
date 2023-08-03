@@ -22,38 +22,55 @@ const axiosFetch = async (url) => {
 
 exports.scrapingLetterboxd = async (user, month, year) => {
   try {
-    const axiosResponse = await axiosFetch(
-      `https://letterboxd.com/${user}/films/diary/for/${year}/${month}/`
-    );
-
-    const $ = cheerio.load(axiosResponse.data);
-
+    let pagesQt = 1;
     const arrayMovies = [];
 
-    for (element of $(".diary-entry-row")) {
-      const movieName = $(element).find(".headline-3").text();
-      let pageLink = $(element).find(".headline-3").find("a").attr("href");
-      let movieRating = $(element).find(".rating").attr("class");
-      const isLiked = $(element).find(".icon-liked").length;
+    for (let i = 0; i < pagesQt; i++) {
+      const axiosResponse = await axiosFetch(
+        `https://letterboxd.com/${user}/films/diary/for/${year}/${month}/page/${
+          i + 1
+        }`
+      );
 
-      let result = pageLink.split("/");
-      pageLink = result[3];
+      const $ = cheerio.load(axiosResponse.data);
 
-      movieRating = parseInt(movieRating.slice(13));
+      const theresPages = $(".paginate-pages");
 
-      const isHalf = movieRating % 2 !== 0 && movieRating ? true : false;
-      isHalf ? movieRating-- : "";
-      movieRating /= 2;
+      if (theresPages.length) {
+        for (element of theresPages) {
+          const list = $(element).find("li");
+          for (element of list) {
+            const text = $(element).text();
+            pagesQt = parseInt(text);
+          }
+        }
+      }
 
-      objMovie = {
-        movieName,
-        movieRating,
-        isLiked,
-        isHalf,
-        pageLink,
-      };
+      for (element of $(".diary-entry-row")) {
+        const movieName = $(element).find(".headline-3").text();
+        let pageLink = $(element).find(".headline-3").find("a").attr("href");
+        let movieRating = $(element).find(".rating").attr("class");
+        const isLiked = $(element).find(".icon-liked").length;
 
-      arrayMovies.push(objMovie);
+        let result = pageLink.split("/");
+        pageLink = result[3];
+
+        movieRating = parseInt(movieRating.slice(13));
+
+        const isHalf = movieRating % 2 !== 0 && movieRating ? true : false;
+        isHalf ? movieRating-- : "";
+        movieRating /= 2;
+
+        objMovie = {
+          movieName,
+          movieRating,
+          isLiked,
+          isHalf,
+          pageLink,
+        };
+
+        arrayMovies.push(objMovie);
+      }
     }
 
     for (let movie of arrayMovies) {

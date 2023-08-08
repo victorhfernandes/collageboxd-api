@@ -20,6 +20,7 @@ const axiosFetch = async (url) => {
   return axiosResponse;
 };
 
+//main fuction
 exports.scrapingLetterboxd = async (user, month, year) => {
   try {
     let pagesQt = 1;

@@ -1,5 +1,7 @@
 const cheerio = require("cheerio");
 const axios = require("axios");
+const NodeCache = require("node-cache");
+const myCache = new NodeCache();
 
 require("dotenv").config();
 
@@ -76,31 +78,39 @@ exports.scrapingLetterboxd = async (user, month, year) => {
 
     for (let movie of arrayMovies) {
       const { pageLink, movieName } = movie;
+      let moviePoster;
 
-      //fetch id
-      const axiosResponse = await axiosFetch(
-        `https://letterboxd.com/film/${pageLink}/`
-      );
+      let value = myCache.get(pageLink);
+      if (value == undefined) {
+        //fetch id
+        const axiosResponse = await axiosFetch(
+          `https://letterboxd.com/film/${pageLink}/`
+        );
 
-      const $ = cheerio.load(axiosResponse.data);
+        const $ = cheerio.load(axiosResponse.data);
 
-      let movieId =
-        $(".micro-button:eq(1)").attr("href") ||
-        $(".micro-button:eq(0)").attr("href");
-      let result = movieId.split("/");
-      movieId = result[4];
-      let type = result[3];
+        let movieId =
+          $(".micro-button:eq(1)").attr("href") ||
+          $(".micro-button:eq(0)").attr("href");
+        let result = movieId.split("/");
+        movieId = result[4];
+        let type = result[3];
 
-      //fetch cover
-      const res = await fetch(
-        `https://api.themoviedb.org/3/${type}/${movieId}?api_key=${apiKey}`
-      );
-      const json = await res.json();
-      let moviePoster = json.poster_path;
+        //fetch cover
+        const res = await fetch(
+          `https://api.themoviedb.org/3/${type}/${movieId}?api_key=${apiKey}`
+        );
+        const json = await res.json();
+        moviePoster = json.poster_path;
 
-      //exceptions
-      if (movieName === "Twin Peaks: The Return") {
-        moviePoster = "/lA9CNSdo50iQPZ8A2fyVpMvJZAf.jpg";
+        //exceptions
+        if (movieName === "Twin Peaks: The Return") {
+          moviePoster = "/lA9CNSdo50iQPZ8A2fyVpMvJZAf.jpg";
+        }
+
+        myCache.set(pageLink, moviePoster, 600);
+      } else {
+        moviePoster = value;
       }
 
       movie.moviePoster = moviePoster;

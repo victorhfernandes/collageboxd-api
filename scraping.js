@@ -127,9 +127,15 @@ exports.scrapingLetterboxd = async (user, month, year) => {
 
     return arrayMovies;
   } catch (e) {
+    let errorMessage;
+    if (e.response.status == 404) {
+      errorMessage = "User not found";
+    } else {
+      errorMessage = e.message;
+    }
     return [
       {
-        error: e.message,
+        error: errorMessage,
       },
     ];
   }

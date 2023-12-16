@@ -50,11 +50,15 @@ exports.scrapingLetterboxd = async (user, month, year) => {
       }
 
       for (element of $(".diary-entry-row")) {
+        const day = $(element).find(".td-day").text();
         const movieName = $(element).find(".headline-3").text();
         let pageLink = $(element).find(".headline-3").find("a").attr("href");
         let movieRating = $(element).find(".rating").attr("class");
         const isLiked = $(element).find(".icon-liked").length;
-
+        const isRewatched = !$(element)
+          .find(".td-rewatch")
+          .attr()
+          .class.includes("off");
         let result = pageLink.split("/");
         pageLink = result[3];
 
@@ -65,10 +69,12 @@ exports.scrapingLetterboxd = async (user, month, year) => {
         movieRating /= 2;
 
         objMovie = {
+          day,
           movieName,
           movieRating,
           isLiked,
           isHalf,
+          isRewatched,
           pageLink,
         };
 
